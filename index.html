@@ -28,7 +28,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-6.75M21 3v6.75" />
             </svg>
             <h1 class="mt-4 text-2xl font-bold text-gray-900">Qualtrics Quick Tab Opener</h1>
-            <p class="mt-2 text-sm text-gray-600">Paste any Qualtrics URL to find SV and/or TS IDs.</p>
+            <p class="mt-2 text-sm text-gray-600">Paste any Qualtrics URL to generate the relevant tab links (works for coreXM, EE and 360) - Corn (Slack @corn for suggestions)</p>
         </div>
 
         <!-- Unified Input Section -->
@@ -91,13 +91,15 @@
             { name: 'Survey Results & Dashboards', template: 'results/results-dashboards/survey/{svId}/?surveyId={svId}', requires: ['sv'], default: false },
             { name: 'Survey Reports', template: 'reports/view/{svId}', requires: ['sv'], default: false },
             { name: '360 Survey Editor', template: 'EX/EditSurveyEX/Blocks?ProjectID={tsId}', requires: ['ts'], default: false },
-            { name: '360 Workflows', template: 'workflows/ui/{tsId}/{svId}/list', requires: ['ts'], default: false },
+            { name: 'EX Workflows', template: 'workflows/ui/{tsId}/{svId}/list', requires: ['ts'], default: false },
             { name: 'Participants', template: 'EX/ParticipantsEI/ParticipantList?ProjectID={tsId}', requires: ['ts'], default: true },
             { name: 'Messages', template: 'EX/MessagesEI/EmailAlerts?ProjectID={tsId}', requires: ['ts'], default: true },
             { name: '360 Data & Analysis', template: 'responses/#/surveys/{svId}?eiProjectId={tsId}&eiProjectType=ThreeSixtyProject', requires: ['ts'], default: true },
+            { name: 'EE Data & Analysis', template: 'responses/#/surveys/{svId}?eiProjectId={tsId}&eiProjectType=EmployeeEngagement', requires: ['ts'], default: true },
             { name: '360 Reports', template: 'reports/360/view/{svId}?projectId={tsId}', requires: ['ts'], default: true },
             { name: '360 Participant Portal', template: 'EX/ParticipantPortal?ThreeSixtyID={tsId}', requires: ['ts'], default: false },
             { name: '360 Dashboards', template: 'your-dashboards/projects/threesixty-dashboards?surveyId={svId}&projectId={tsId}', requires: ['ts'], default: false },
+            { name: 'EE Dashboards', template: 'your-dashboards/projects/ex-dashboards?surveyId={svId}&projectId={tsId}', requires: ['ts'], default: false },
         ];
         
         const DEFAULTS_STORAGE_KEY = 'qualtricsOpenerDefaults';
