@@ -17,7 +17,13 @@
 <body class="bg-gray-100 min-h-screen py-12 px-4 sm:px-0">
 
     <div class="w-full max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-lg">
-        <div class="mb-6 text-center">
+        <div class="relative mb-6 text-center">
+            <button id="settingsBtn" class="absolute top-0 right-0 p-2 text-gray-400 hover:text-indigo-600 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+            </button>
             <svg class="mx-auto h-12 w-auto text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-6.75M21 3v6.75" />
             </svg>
@@ -55,30 +61,47 @@
         </div>
     </div>
 
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+        <div class="relative top-20 mx-auto p-5 border w-full max-w-lg shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Default Links Settings</h3>
+                <div id="settingsList" class="mt-4 max-h-96 overflow-y-auto text-left space-y-2 p-4 bg-gray-50 rounded-lg">
+                    <!-- Checkboxes will be populated here by JavaScript -->
+                </div>
+                <div class="items-center px-4 py-3 mt-4">
+                    <button id="saveSettingsBtn" class="px-4 py-2 bg-indigo-600 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        Save Preferences
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <script>
         // --- Template Object ---
-        // 'requires' array tells the app which IDs must be present in the URL to generate the link.
+        // 'requires' specifies which IDs are needed.
+        // 'default' specifies the initial hardcoded default state.
         const URL_TEMPLATES = [
-            // These links primarily use the SV ID
-            { name: 'Survey Editor', template: 'Q/EditSection/Blocks?SurveyID={svId}', requires: ['sv'] },
-            { name: '360 Survey Editor', template: 'EX/EditSurveyEX/Blocks?ProjectID={tsId}', requires: ['ts'] },
-            { name: '360 Workflows', template: 'workflows/ui/{tsId}/{svId}/list', requires: ['ts'] },
-            { name: 'Workflows', template: 'workflows/ui/{svId}/{svId}/list', requires: ['sv'] },
-            { name: 'Survey Distributions', template: 'Q/DistributeSection?ContextSurveyID={svId}', requires: ['sv'] },
-            { name: 'Participants', template: 'EX/ParticipantsEI/ParticipantList?ProjectID={tsId}', requires: ['ts'] },
-            { name: 'Messages', template: 'EX/MessagesEI/EmailAlerts?ProjectID={tsId}', requires: ['ts'] },
-            { name: 'Survey Data & Analysis', template: 'responses/#/surveys/{svId}', requires: ['sv'] },
-            { name: '360 Data & Analysis', template: 'responses/#/surveys/{svId}?eiProjectId={tsId}&eiProjectType=ThreeSixtyProject', requires: ['ts'] },
-            { name: 'Survey Results & Dashboards', template: 'results/results-dashboards/survey/{svId}/?surveyId={svId}', requires: ['sv'] },
-            { name: 'Survey Reports', template: 'reports/view/{svId}', requires: ['sv'] },
-            { name: '360 Reports', template: 'reports/360/view/{svId}?projectId={tsId}', requires: ['ts'] },
-            { name: '360 Participant Portal', template: 'EX/ParticipantPortal?ThreeSixtyID={tsId}', requires: ['ts'] },
-            { name: '360 Dashboards', template: 'your-dashboards/projects/threesixty-dashboards?surveyId={svId}&projectId={tsId}', requires: ['ts'] },
-
-            // This link primarily uses the TS ID
-            
-            // These links can use both
+            { name: 'Survey Editor', template: 'Q/EditSection/Blocks?SurveyID={svId}', requires: ['sv'], default: false },
+            { name: 'Workflows', template: 'workflows/ui/{svId}/{svId}/list', requires: ['sv'], default: true },
+            { name: 'Survey Distributions', template: 'Q/DistributeSection?ContextSurveyID={svId}', requires: ['sv'], default: true },
+            { name: 'Survey Data & Analysis', template: 'responses/#/surveys/{svId}', requires: ['sv'], default: true },
+            { name: 'Survey Results & Dashboards', template: 'results/results-dashboards/survey/{svId}/?surveyId={svId}', requires: ['sv'], default: false },
+            { name: 'Survey Reports', template: 'reports/view/{svId}', requires: ['sv'], default: false },
+            { name: '360 Survey Editor', template: 'EX/EditSurveyEX/Blocks?ProjectID={tsId}', requires: ['ts'], default: false },
+            { name: '360 Workflows', template: 'workflows/ui/{tsId}/{svId}/list', requires: ['ts'], default: false },
+            { name: 'Participants', template: 'EX/ParticipantsEI/ParticipantList?ProjectID={tsId}', requires: ['ts'], default: true },
+            { name: 'Messages', template: 'EX/MessagesEI/EmailAlerts?ProjectID={tsId}', requires: ['ts'], default: true },
+            { name: '360 Data & Analysis', template: 'responses/#/surveys/{svId}?eiProjectId={tsId}&eiProjectType=ThreeSixtyProject', requires: ['ts'], default: true },
+            { name: '360 Reports', template: 'reports/360/view/{svId}?projectId={tsId}', requires: ['ts'], default: true },
+            { name: '360 Participant Portal', template: 'EX/ParticipantPortal?ThreeSixtyID={tsId}', requires: ['ts'], default: false },
+            { name: '360 Dashboards', template: 'your-dashboards/projects/threesixty-dashboards?surveyId={svId}&projectId={tsId}', requires: ['ts'], default: false },
         ];
+        
+        const DEFAULTS_STORAGE_KEY = 'qualtricsOpenerDefaults';
+        let userDefaultLinkNames = [];
 
         // --- DOM Element References ---
         const urlInput = document.getElementById('urlInput');
@@ -90,13 +113,67 @@
         const linksList = document.getElementById('linksList');
         const selectAllCheckbox = document.getElementById('selectAllCheckbox');
         const popupWarning = document.getElementById('popup-warning');
+        const settingsBtn = document.getElementById('settingsBtn');
+        const settingsModal = document.getElementById('settingsModal');
+        const settingsList = document.getElementById('settingsList');
+        const saveSettingsBtn = document.getElementById('saveSettingsBtn');
         
         // --- Event Listeners ---
+        document.addEventListener('DOMContentLoaded', loadDefaults);
         generateBtn.addEventListener('click', handleGenerateLinks);
         clearBtn.addEventListener('click', handleClear);
         openTabsBtn.addEventListener('click', handleOpenTabs);
         selectAllCheckbox.addEventListener('change', handleSelectAll);
+        settingsBtn.addEventListener('click', openSettingsModal);
+        saveSettingsBtn.addEventListener('click', saveDefaults);
+        settingsModal.addEventListener('click', (e) => { // Close modal on overlay click
+            if (e.target.id === 'settingsModal') {
+                settingsModal.classList.add('hidden');
+            }
+        });
         
+        // --- Settings and Persistence ---
+        function loadDefaults() {
+            const savedDefaults = localStorage.getItem(DEFAULTS_STORAGE_KEY);
+            if (savedDefaults) {
+                userDefaultLinkNames = JSON.parse(savedDefaults);
+            } else {
+                // If no saved defaults, use the hardcoded ones
+                userDefaultLinkNames = URL_TEMPLATES
+                    .filter(item => item.default)
+                    .map(item => item.name);
+            }
+        }
+
+        function saveDefaults() {
+            const newDefaults = [];
+            const settingsCheckboxes = settingsList.querySelectorAll('input[type="checkbox"]');
+            settingsCheckboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    newDefaults.push(checkbox.dataset.name);
+                }
+            });
+            localStorage.setItem(DEFAULTS_STORAGE_KEY, JSON.stringify(newDefaults));
+            loadDefaults(); // Reload the defaults into the app state
+            settingsModal.classList.add('hidden');
+            showMessage('Default preferences saved!', 'success');
+        }
+
+        function openSettingsModal() {
+            settingsList.innerHTML = '';
+            URL_TEMPLATES.forEach((item, index) => {
+                const isDefault = userDefaultLinkNames.includes(item.name);
+                const settingElement = document.createElement('div');
+                settingElement.className = 'flex items-center p-2 bg-white rounded-lg border';
+                settingElement.innerHTML = `
+                    <input id="setting-checkbox-${index}" type="checkbox" data-name="${item.name}" class="h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" ${isDefault ? 'checked' : ''}>
+                    <label for="setting-checkbox-${index}" class="ml-3 flex-grow text-sm text-gray-800">${item.name}</label>
+                `;
+                settingsList.appendChild(settingElement);
+            });
+            settingsModal.classList.remove('hidden');
+        }
+
         // --- Core Logic ---
         function handleGenerateLinks() {
             const url = urlInput.value.trim();
@@ -105,7 +182,6 @@
                 return;
             }
 
-            // Regular expressions to find IDs and domain
             const svRegex = /(SV_\w+)/;
             const tsRegex = /(TS_\w+)/;
             const domainRegex = /(https?:\/\/[^/]+)/;
@@ -139,17 +215,10 @@
             const availableTemplates = URL_TEMPLATES.filter(item => {
                 const svRequired = item.requires.includes('sv');
                 const tsRequired = item.requires.includes('ts');
-
-                // Condition 1: If the template requires an ID, we must have found it.
                 if (svRequired && !svId) return false;
                 if (tsRequired && !tsId) return false;
-                
-                // Condition 2: If a TS ID was found, only show links that require a TS ID.
-                if (tsId && !tsRequired) {
-                    return false;
-                }
-                
-                return true; // All conditions met
+                if (tsId && !tsRequired) return false;
+                return true;
             });
 
             if (availableTemplates.length === 0) {
@@ -160,17 +229,15 @@
             }
             
             availableTemplates.forEach((item, index) => {
+                const isCheckedByDefault = userDefaultLinkNames.includes(item.name);
                 let finalUrl = `${domain}/${item.template}`;
-                if (svId) {
-                    finalUrl = finalUrl.replace(/{svId}/g, svId);
-                }
-                if (tsId) {
-                    finalUrl = finalUrl.replace(/{tsId}/g, tsId);
-                }
+                if (svId) finalUrl = finalUrl.replace(/{svId}/g, svId);
+                if (tsId) finalUrl = finalUrl.replace(/{tsId}/g, tsId);
+                
                 const linkElement = document.createElement('div');
                 linkElement.className = 'flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200';
                 linkElement.innerHTML = `
-                    <input id="link-checkbox-${index}" type="checkbox" data-url="${finalUrl}" class="link-checkbox h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" checked>
+                    <input id="link-checkbox-${index}" type="checkbox" data-url="${finalUrl}" class="link-checkbox h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" ${isCheckedByDefault ? 'checked' : ''}>
                     <label for="link-checkbox-${index}" class="ml-3 flex-grow">
                         <span class="font-semibold text-gray-800">${item.name}</span>
                         <p class="text-xs text-gray-500 break-all">${finalUrl}</p>
@@ -178,7 +245,10 @@
                 linksList.appendChild(linkElement);
             });
             
-            selectAllCheckbox.checked = true;
+            const allCheckboxes = linksList.querySelectorAll('.link-checkbox');
+            const allAreChecked = allCheckboxes.length > 0 && Array.from(allCheckboxes).every(cb => cb.checked);
+            selectAllCheckbox.checked = allAreChecked;
+
             generatedContentContainer.classList.remove('hidden');
             openTabsBtn.classList.remove('hidden');
             popupWarning.classList.remove('hidden');
@@ -205,7 +275,7 @@
 
         function handleSelectAll() {
             const isChecked = selectAllCheckbox.checked;
-            const allCheckboxes = document.querySelectorAll('.link-checkbox');
+            const allCheckboxes = linksList.querySelectorAll('.link-checkbox');
             allCheckboxes.forEach(checkbox => checkbox.checked = isChecked);
         }
 
