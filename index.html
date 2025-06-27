@@ -44,6 +44,10 @@
         <!-- Results and Error Messages -->
         <div id="messageArea" class="mt-4 text-center"></div>
 
+        <div id="popup-warning" class="mt-4 p-3 bg-yellow-100 border-l-4 border-yellow-400 text-yellow-700 rounded-r-lg hidden">
+            <p class="text-sm">Your browser might block pop-ups. Please allow pop-ups for this site if tabs don't open.</p>
+        </div>
+
         <!-- Generated Links Area -->
         <div id="generatedContentContainer" class="mt-6 space-y-3 hidden">
             <div class="flex justify-between items-center border-b pb-2 mb-2">
@@ -54,10 +58,6 @@
                  </div>
             </div>
             <div id="linksList" class="space-y-3"></div>
-        </div>
-        
-        <div id="popup-warning" class="mt-4 p-3 bg-yellow-100 border-l-4 border-yellow-400 text-yellow-700 rounded-r-lg hidden">
-            <p class="text-sm">Your browser might block pop-ups. Please allow pop-ups for this site if tabs don't open.</p>
         </div>
     </div>
 
@@ -81,8 +81,6 @@
 
     <script>
         // --- Template Object ---
-        // 'requires' specifies which IDs are needed.
-        // 'default' specifies the initial hardcoded default state.
         const URL_TEMPLATES = [
             { name: 'Survey Editor', template: 'Q/EditSection/Blocks?SurveyID={svId}', requires: ['sv'], default: false },
             { name: 'Workflows', template: 'workflows/ui/{svId}/{svId}/list', requires: ['sv'], default: true },
@@ -140,7 +138,6 @@
             if (savedDefaults) {
                 userDefaultLinkNames = JSON.parse(savedDefaults);
             } else {
-                // If no saved defaults, use the hardcoded ones
                 userDefaultLinkNames = URL_TEMPLATES
                     .filter(item => item.default)
                     .map(item => item.name);
@@ -178,6 +175,12 @@
 
         // --- Core Logic ---
         function handleGenerateLinks() {
+            // First, clear any previous results and messages
+            generatedContentContainer.classList.add('hidden');
+            openTabsBtn.classList.add('hidden');
+            popupWarning.classList.add('hidden');
+            messageArea.innerHTML = '';
+            
             const url = urlInput.value.trim();
             if (!url) {
                 showMessage('Please paste a URL first.', 'error');
@@ -198,8 +201,6 @@
 
             if ((!svId && !tsId) || !domain) {
                 showMessage('Could not find a valid SV/TS ID or domain in the URL.', 'error');
-                generatedContentContainer.classList.add('hidden');
-                openTabsBtn.classList.add('hidden');
                 return;
             }
 
@@ -207,6 +208,9 @@
             if (svId) messageParts.push(`SV ID (${svId})`);
             if (tsId) messageParts.push(`TS ID (${tsId})`);
             showMessage(messageParts.join(' '), 'success');
+
+            // Show pop-up warning as soon as IDs are found
+            popupWarning.classList.remove('hidden');
 
             displayGeneratedLinks(domain, svId, tsId);
         }
@@ -253,7 +257,6 @@
 
             generatedContentContainer.classList.remove('hidden');
             openTabsBtn.classList.remove('hidden');
-            popupWarning.classList.remove('hidden');
         }
 
         function handleOpenTabs() {
