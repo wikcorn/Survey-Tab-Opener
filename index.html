@@ -18,7 +18,7 @@
 
     <div class="w-full max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-lg">
         <div class="relative mb-6 text-center">
-            <button id="settingsBtn" class="absolute top-0 right-0 p-2 text-gray-400 hover:text-indigo-600 transition-colors">
+            <button id="settingsBtn" class="absolute top-0 right-0 p-2 text-gray-400 hover:text-blue-600 transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -31,24 +31,21 @@
             <p class="mt-2 text-sm text-gray-600">Paste any Qualtrics URL to generate the relevant tab links (works for coreXM, EE and 360)</p>
         </div>
 
-        <!-- Unified Input Section -->
         <div class="flex flex-col sm:flex-row gap-2">
             <input type="text" id="urlInput" placeholder="Paste any Qualtrics URL..." class="flex-grow w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow">
             <button id="clearBtn" class="px-4 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-semibold transition-colors">Clear</button>
         </div>
         <div class="mt-4 space-y-2">
-            <button id="generateBtn" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700">Generate Links</button>
+            <button id="generateBtn" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700">Generate Links</button>
             <button id="openTabsBtn" class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 hidden">Open Selected Tabs</button>
         </div>
 
-        <!-- Results and Error Messages -->
         <div id="messageArea" class="mt-4 text-center"></div>
 
         <div id="popup-warning" class="mt-4 p-3 bg-yellow-100 border-l-4 border-yellow-400 text-yellow-700 rounded-r-lg hidden">
             <p class="text-sm">Your browser might block pop-ups. Please allow pop-ups for this site if tabs don't open.</p>
         </div>
 
-        <!-- Generated Links Area -->
         <div id="generatedContentContainer" class="mt-6 space-y-3 hidden">
             <div class="flex justify-between items-center border-b pb-2 mb-2">
                  <h2 class="text-lg font-semibold text-gray-800">Generated Links</h2>
@@ -61,13 +58,11 @@
         </div>
     </div>
 
-    <!-- Settings Modal -->
     <div id="settingsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
         <div class="relative top-20 mx-auto p-5 border w-full max-w-lg shadow-lg rounded-md bg-white">
             <div class="mt-3 text-center">
                 <h3 class="text-lg leading-6 font-medium text-gray-900">Default Links Settings</h3>
                 <div id="settingsList" class="mt-4 max-h-96 overflow-y-auto text-left space-y-2 p-4 bg-gray-50 rounded-lg">
-                    <!-- Checkboxes will be populated here by JavaScript -->
                 </div>
                 <div class="items-center px-4 py-3 mt-4">
                     <button id="saveSettingsBtn" class="px-4 py-2 bg-indigo-600 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
@@ -80,7 +75,7 @@
 
 
     <script>
-        // --- Template Object ---
+        //URLs
         const URL_TEMPLATES = [
             { name: 'Survey Editor', template: 'Q/EditSection/Blocks?SurveyID={svId}', requires: ['sv'], default: false },
             { name: 'Workflows', template: 'workflows/ui/{svId}/{svId}/list', requires: ['sv'], default: true },
@@ -103,7 +98,6 @@
         const DEFAULTS_STORAGE_KEY = 'qualtricsOpenerDefaults';
         let userDefaultLinkNames = [];
 
-        // --- DOM Element References ---
         const urlInput = document.getElementById('urlInput');
         const generateBtn = document.getElementById('generateBtn');
         const clearBtn = document.getElementById('clearBtn');
@@ -118,7 +112,6 @@
         const settingsList = document.getElementById('settingsList');
         const saveSettingsBtn = document.getElementById('saveSettingsBtn');
         
-        // --- Event Listeners ---
         document.addEventListener('DOMContentLoaded', loadDefaults);
         generateBtn.addEventListener('click', handleGenerateLinks);
         clearBtn.addEventListener('click', handleClear);
@@ -132,7 +125,7 @@
             }
         });
         
-        // --- Settings and Persistence ---
+        //Settings
         function loadDefaults() {
             const savedDefaults = localStorage.getItem(DEFAULTS_STORAGE_KEY);
             if (savedDefaults) {
@@ -153,7 +146,7 @@
                 }
             });
             localStorage.setItem(DEFAULTS_STORAGE_KEY, JSON.stringify(newDefaults));
-            loadDefaults(); // Reload the defaults into the app state
+            loadDefaults();
             settingsModal.classList.add('hidden');
             showMessage('Default preferences saved!', 'success');
         }
@@ -173,9 +166,7 @@
             settingsModal.classList.remove('hidden');
         }
 
-        // --- Core Logic ---
         function handleGenerateLinks() {
-            // First, clear any previous results and messages
             generatedContentContainer.classList.add('hidden');
             openTabsBtn.classList.add('hidden');
             popupWarning.classList.add('hidden');
@@ -209,7 +200,6 @@
             if (tsId) messageParts.push(`TS ID (${tsId})`);
             showMessage(messageParts.join(' '), 'success');
 
-            // Show pop-up warning as soon as IDs are found
             popupWarning.classList.remove('hidden');
 
             displayGeneratedLinks(domain, svId, tsId);
