@@ -35,6 +35,29 @@
             font-family: 'Inter', sans-serif;
         }
     </style>
+<script>
+    var QTest = "Testing";
+    var externalReference = "QSupport";
+    var extRef = "QSupport123456";
+    var Player_ID__c = "test@gmail.com"
+    if(typeof QSI === "undefined") {
+
+      QSI = {};
+
+      QSI.config = {
+
+        externalReference:extRef, 
+        contactEmbeddedData: {"Location":"Seattle"}, 
+        language:"English", 
+        firstName:"Jane", 
+        lastName:"Smith"
+
+      };
+
+}
+    
+</script>
+
 </head>
 <body class="bg-gray-100 min-h-screen py-12 px-4 sm:px-0">
 
